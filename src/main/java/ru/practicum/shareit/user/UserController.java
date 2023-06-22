@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
