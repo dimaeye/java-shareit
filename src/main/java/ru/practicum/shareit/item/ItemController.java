@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Validated
 public class ItemController {
 
-    public static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
+    private static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired

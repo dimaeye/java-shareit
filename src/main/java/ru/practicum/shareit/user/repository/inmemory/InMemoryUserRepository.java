@@ -53,11 +53,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public void delete(User user) {
-        User userForDelete = users.get(user.getId());
-
-        if (userForDelete == null)
+        if (users.remove(user.getId()) == null)
             throw new UserNotFoundException(user.getId());
-        else
-            users.remove(user.getId());
     }
 }

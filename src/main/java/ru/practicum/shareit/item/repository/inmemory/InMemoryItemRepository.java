@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,7 +57,7 @@ public class InMemoryItemRepository implements ItemRepository {
     @Override
     public List<Item> findAvailableByNameOrDescription(String text) {
         if (text == null || text.isBlank())
-            return new ArrayList<>();
+            return Collections.emptyList();
         else {
             String lowerText = text.toLowerCase();
             return items.stream()
