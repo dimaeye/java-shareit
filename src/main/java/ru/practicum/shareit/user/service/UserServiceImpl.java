@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,24 +23,19 @@ public class UserServiceImpl implements UserService {
         if (user.getName() == null)
             user.setName(user.getEmail());
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent())
-            throw new DuplicateEmailException("Пользователь с таким же email " + user.getEmail() + " уже создан");
-        else
-            return userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User updateUser(User user) throws UserNotFoundException, DuplicateEmailException {
-        Optional<User> userFindByEmail =
-                user.getEmail() != null ? userRepository.findByEmail(user.getEmail()) : Optional.empty();
+        User userForUpdate = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException(user.getId()));
+        if (user.getEmail() != null)
+            userForUpdate.setEmail(user.getEmail());
+        if (user.getName() != null)
+            userForUpdate.setName(user.getName());
 
-        if (userFindByEmail.isEmpty() || userFindByEmail.get().getId() == user.getId())
-            return userRepository.update(user);
-        else
-            throw new DuplicateEmailException(
-                    "Не удалось обновить почту "
-                            + user.getEmail() + " у пользователя, т.к. уже используется другим пользователем"
-            );
+        return userRepository.save(userForUpdate);
     }
 
     @Override

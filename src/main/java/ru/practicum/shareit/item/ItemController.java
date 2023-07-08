@@ -15,13 +15,14 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.user.auth.AuthConstant.OWNER_ID_HEADER;
+
 @RestController
 @RequestMapping("/items")
 @Slf4j
 @Validated
 public class ItemController {
 
-    private static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
