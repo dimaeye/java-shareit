@@ -2,13 +2,12 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.exception.DuplicateEmailException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,41 +19,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) throws DuplicateEmailException {
+    @Transactional
+    public User createUser(User user) {
         if (user.getName() == null)
             user.setName(user.getEmail());
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent())
-            throw new DuplicateEmailException("Пользователь с таким же email " + user.getEmail() + " уже создан");
-        else
-            return userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
-    public User updateUser(User user) throws UserNotFoundException, DuplicateEmailException {
-        Optional<User> userFindByEmail =
-                user.getEmail() != null ? userRepository.findByEmail(user.getEmail()) : Optional.empty();
+    @Transactional
+    public User updateUser(User user) throws UserNotFoundException {
+        User userForUpdate = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException(user.getId()));
+        if (user.getEmail() != null)
+            userForUpdate.setEmail(user.getEmail());
+        if (user.getName() != null)
+            userForUpdate.setName(user.getName());
 
-        if (userFindByEmail.isEmpty() || userFindByEmail.get().getId() == user.getId())
-            return userRepository.update(user);
-        else
-            throw new DuplicateEmailException(
-                    "Не удалось обновить почту "
-                            + user.getEmail() + " у пользователя, т.к. уже используется другим пользователем"
-            );
+        return userRepository.save(userForUpdate);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUser(int userId) throws UserNotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void deleteUser(int userId) throws UserNotFoundException {
         User user = getUser(userId);
 

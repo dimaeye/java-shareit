@@ -5,9 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.annotation.AddItemConstraint;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -15,13 +19,14 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.user.auth.AuthConstant.OWNER_ID_HEADER;
+
 @RestController
 @RequestMapping("/items")
 @Slf4j
 @Validated
 public class ItemController {
 
-    private static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
@@ -57,15 +62,18 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTO getItemById(@PathVariable("itemId") Integer itemId) {
-        Item item = itemService.getItem(itemId);
+    public ItemDTO getItemById(
+            @RequestHeader(OWNER_ID_HEADER) @Positive Integer userId,
+            @PathVariable("itemId") Integer itemId
+    ) {
+        ItemBookingDetails itemBookingDetails = itemService.getItem(itemId, userId);
 
-        return ItemMapper.toItemDTO(item);
+        return ItemMapper.toItemDTO(itemBookingDetails);
     }
 
     @GetMapping
     public List<ItemDTO> getAllItemsByOwnerId(@RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId) {
-        List<Item> items = itemService.getAllItemsByOwnerId(ownerId);
+        List<ItemBookingDetails> items = itemService.getAllItemsByOwnerId(ownerId);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
     }
@@ -75,5 +83,16 @@ public class ItemController {
         List<Item> items = itemService.getAvailableItemsByText(text);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDTO addComment(
+            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
+            @RequestBody @Valid CommentDTO commentDTO,
+            @PathVariable Integer itemId
+    ) {
+        Comment addedComment = itemService.addComment(CommentMapper.toComment(commentDTO), itemId, ownerId);
+
+        return CommentMapper.toCommentDTO(addedComment);
     }
 }
