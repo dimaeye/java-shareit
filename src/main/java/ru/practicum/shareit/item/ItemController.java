@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.annotation.AddItemConstraint;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -58,15 +59,18 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTO getItemById(@PathVariable("itemId") Integer itemId) {
-        Item item = itemService.getItem(itemId);
+    public ItemDTO getItemById(
+            @RequestHeader(OWNER_ID_HEADER) @Positive Integer userId,
+            @PathVariable("itemId") Integer itemId
+    ) {
+        ItemBookingDetails itemBookingDetails = itemService.getItem(itemId, userId);
 
-        return ItemMapper.toItemDTO(item);
+        return ItemMapper.toItemDTO(itemBookingDetails);
     }
 
     @GetMapping
     public List<ItemDTO> getAllItemsByOwnerId(@RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId) {
-        List<Item> items = itemService.getAllItemsByOwnerId(ownerId);
+        List<ItemBookingDetails> items = itemService.getAllItemsByOwnerId(ownerId);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
     }

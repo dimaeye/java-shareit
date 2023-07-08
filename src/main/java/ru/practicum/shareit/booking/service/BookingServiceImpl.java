@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
             Booking booking, int bookerId, int itemId
     ) throws ItemNotFoundException, UserNotFoundException {
         User booker = userService.getUser(bookerId);
-        Item item = itemService.getItem(itemId);
+        Item item = itemService.getItem(itemId, bookerId).getItem();
 
         if (!item.getAvailable())
             throw new ItemNotAvailableException(itemId);
@@ -113,9 +113,9 @@ public class BookingServiceImpl implements BookingService {
                         bookerId, LocalDateTime.now(), LocalDateTime.now()
                 );
             case WAITING:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(bookerId, BookingStatus.WAITING);
             case REJECTED:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(bookerId, BookingStatus.REJECTED);
             default:
                 allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
         }
@@ -133,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> allBookings;
 
         List<Integer> itemIds = itemService.getAllItemsByOwnerId(ownerId)
-                .stream().map(Item::getId).collect(Collectors.toList());
+                .stream().map(i -> i.getItem().getId()).collect(Collectors.toList());
 
         if (itemIds.isEmpty())
             throw new BookingNotFoundException();
@@ -150,9 +150,9 @@ public class BookingServiceImpl implements BookingService {
                         itemIds, LocalDateTime.now(), LocalDateTime.now()
                 );
             case WAITING:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusIsOrderByStartDesc(itemIds, BookingStatus.WAITING);
             case REJECTED:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusIsOrderByStartDesc(itemIds, BookingStatus.REJECTED);
             default:
                 allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds);
         }
