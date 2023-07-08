@@ -96,21 +96,21 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> allBookings;
         switch (bookingState) {
             case CURRENT:
-                allBookings = bookingRepository.findAllByIdAndStartBeforeAndEndAfterOrderByStartAsc(
+                allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
                         bookerId, LocalDateTime.now(), LocalDateTime.now()
                 );
             case FUTURE:
-                allBookings = bookingRepository.findAllByIdAndStartAfterOrderByStartAsc(bookerId, LocalDateTime.now());
+                allBookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
             case PAST:
-                allBookings = bookingRepository.findAllByIdAndStartBeforeAndEndBeforeOrderByStartAsc(
+                allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
                         bookerId, LocalDateTime.now(), LocalDateTime.now()
                 );
             case WAITING:
-                allBookings = bookingRepository.findAllByIdAndStatusOrderByStartAsc(bookerId, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
             case REJECTED:
-                allBookings = bookingRepository.findAllByIdAndStatusOrderByStartAsc(bookerId, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
             default:
-                allBookings = bookingRepository.findAllByIdOrderByStartAsc(bookerId);
+                allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
         }
 
         if (allBookings.isEmpty())
@@ -133,21 +133,21 @@ public class BookingServiceImpl implements BookingService {
 
         switch (bookingState) {
             case CURRENT:
-                allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartAsc(
+                allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
                         itemIds, LocalDateTime.now(), LocalDateTime.now()
                 );
             case FUTURE:
-                allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartAsc(itemIds, LocalDateTime.now());
+                allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartDesc(itemIds, LocalDateTime.now());
             case PAST:
-                allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartAsc(
+                allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
                         itemIds, LocalDateTime.now(), LocalDateTime.now()
                 );
             case WAITING:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartAsc(itemIds, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.WAITING);
             case REJECTED:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartAsc(itemIds, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.REJECTED);
             default:
-                allBookings = bookingRepository.findAllByItemIdInOrderByStartAsc(itemIds);
+                allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds);
         }
 
         if (allBookings.isEmpty())

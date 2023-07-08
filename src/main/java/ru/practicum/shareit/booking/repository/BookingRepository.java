@@ -12,33 +12,33 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    List<Booking> findAllByIdAndStartBeforeAndEndAfterOrderByStartAsc(
+    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
             int bookerId, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByIdAndStartAfterOrderByStartAsc(int bookerId, LocalDateTime start);
+    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId, LocalDateTime start);
 
-    List<Booking> findAllByIdAndStartBeforeAndEndBeforeOrderByStartAsc(
+    List<Booking> findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
             int bookerId, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByIdAndStatusOrderByStartAsc(int bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(int bookerId, BookingStatus bookingStatus);
 
-    List<Booking> findAllByIdOrderByStartAsc(int bookerId);
+    List<Booking> findAllByBookerIdOrderByStartDesc(int bookerId);
 
-    List<Booking> findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartAsc(
+    List<Booking> findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
             List<Integer> itemIds, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByItemIdInAndStartAfterOrderByStartAsc(List<Integer> itemIds, LocalDateTime start);
+    List<Booking> findAllByItemIdInAndStartAfterOrderByStartDesc(List<Integer> itemIds, LocalDateTime start);
 
-    List<Booking> findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartAsc(
+    List<Booking> findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
             List<Integer> itemIds, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByItemIdInAndStatusOrderByStartAsc(List<Integer> itemIds, BookingStatus bookingStatus);
+    List<Booking> findAllByItemIdInAndStatusOrderByStartDesc(List<Integer> itemIds, BookingStatus bookingStatus);
 
-    List<Booking> findAllByItemIdInOrderByStartAsc(List<Integer> itemIds);
+    List<Booking> findAllByItemIdInOrderByStartDesc(List<Integer> itemIds);
 
     @Query("FROM Booking b " +
             "WHERE b.item.id = ?1 " +
