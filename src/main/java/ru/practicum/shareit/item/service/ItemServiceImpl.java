@@ -55,6 +55,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItem(int itemId) throws ItemNotFoundException {
+        //added last booking
+        //added next booking
         return itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException(itemId));
     }
 

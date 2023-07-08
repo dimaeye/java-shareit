@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import ru.practicum.shareit.booking.exception.BadBookingStatusForApproveException;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
 import ru.practicum.shareit.booking.exception.UserNotBookingCreatorOrItemOwnerException;
 import ru.practicum.shareit.booking.exception.UserNotItemOwnerInBookingException;
@@ -19,7 +20,7 @@ public interface BookingService {
 
     Booking approveBooking(
             int bookingId, int ownerId, boolean isApproved
-    ) throws BookingNotFoundException, UserNotItemOwnerInBookingException;
+    ) throws BookingNotFoundException, UserNotItemOwnerInBookingException, BadBookingStatusForApproveException;
 
     List<Booking> getAllBookingsOfUserByState(int ownerId, BookingState bookingState) throws BookingNotFoundException;
 

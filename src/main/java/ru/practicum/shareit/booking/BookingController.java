@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,10 +70,9 @@ public class BookingController {
             @Positive
             Integer ownerId,
             @RequestParam(value = "state", required = false, defaultValue = "ALL")
-            @Pattern(regexp = "ALL|CURRENT|FUTURE|PAST|WAITING|REJECTED", message = "Неверное значение параметра State")
             String state
     ) {
-        List<Booking> allBookings = bookingService.getAllBookingsOfUserByState(ownerId, BookingState.valueOf(state));
+        List<Booking> allBookings = bookingService.getAllBookingsOfUserByState(ownerId, getBookingState(state));
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
     }
@@ -85,13 +83,24 @@ public class BookingController {
             @Positive
             Integer ownerId,
             @RequestParam(value = "state", required = false, defaultValue = "ALL")
-            @Pattern(regexp = "ALL|CURRENT|FUTURE|PAST|WAITING|REJECTED", message = "Неверное значение параметра State")
             String state
     ) {
-        List<Booking> allBookings = bookingService.getAllBookingsOfUserItems(ownerId, BookingState.valueOf(state));
+        List<Booking> allBookings = bookingService.getAllBookingsOfUserItems(ownerId, getBookingState(state));
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
     }
 
+
+    private BookingState getBookingState(String state) throws ValidationException {
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            throw new ValidationException("Unknown state: " + state);
+        }
+
+        return bookingState;
+    }
 
 }

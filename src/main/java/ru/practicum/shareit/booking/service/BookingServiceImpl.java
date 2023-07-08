@@ -76,13 +76,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking approveBooking(int bookingId, int ownerId, boolean isApproved) {
+    public Booking approveBooking(
+            int bookingId, int ownerId, boolean isApproved
+    ) throws BookingNotFoundException, UserNotItemOwnerInBookingException, BadBookingStatusForApproveException {
         Booking booking = bookingRepository
                 .findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException(bookingId));
 
         if (booking.getItem().getOwner().getId() != ownerId)
             throw new UserNotItemOwnerInBookingException(bookingId, ownerId);
+
+        if (!booking.getStatus().equals(BookingStatus.WAITING))
+            throw new BadBookingStatusForApproveException(
+                    "Статус бронирования " + bookingId + " уже изменен на " + booking.getStatus()
+            );
 
         booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
 

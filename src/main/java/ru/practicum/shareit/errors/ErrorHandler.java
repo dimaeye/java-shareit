@@ -62,10 +62,11 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(value = {
-            AlreadyReservedItemException.class, ItemNotAvailableException.class
+            AlreadyReservedItemException.class, ItemNotAvailableException.class,
+            BadBookingStatusForApproveException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleItemNotAvailableOrReservedException(RuntimeException e) {
+    public ErrorResponse handleDomainBadRequestException(RuntimeException e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
