@@ -48,7 +48,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     )
     List<Booking> findAllByItemIdAndStartBetweenAndEndBetween(int itemId, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new ru.practicum.shareit.booking.model.Booking(b.id, MAX(b.start), b.end, b.item, b.booker, b.status) FROM Booking b " +
+    @Query("SELECT new ru.practicum.shareit.booking.model.Booking(" +
+            "b.id, MAX(b.start), b.end, b.item, b.booker, b.status" +
+            ") FROM Booking b " +
             "WHERE b.item.id IN (?1) " +
             "AND b.item.owner.id = ?2 " +
             "AND b.start < ?3 " +
@@ -56,11 +58,13 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "GROUP BY b.id " +
             "ORDER BY b.item.id, MAX(b.start)"
     )
-    List<Booking> findLastByItemIdsAndItemOwnerIdAndStartIsBefore(
+    List<Booking> findLastByItemIdsAndItemOwnerIdAndStartIsBeforeAndStatusNotIn(
             List<Integer> itemIds, int ownerId, LocalDateTime start, List<BookingStatus> statuses
     );
 
-    @Query("SELECT new ru.practicum.shareit.booking.model.Booking(b.id, MIN(b.start), b.end, b.item, b.booker, b.status) FROM Booking b " +
+    @Query("SELECT new ru.practicum.shareit.booking.model.Booking(" +
+            "b.id, MIN(b.start), b.end, b.item, b.booker, b.status" +
+            ") FROM Booking b " +
             "WHERE b.item.id IN (?1) " +
             "AND b.item.owner.id = ?2 " +
             "AND b.start >= ?3 " +

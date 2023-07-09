@@ -1,9 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
-import ru.practicum.shareit.booking.exception.BadBookingStatusForApproveException;
-import ru.practicum.shareit.booking.exception.BookingNotFoundException;
-import ru.practicum.shareit.booking.exception.UserNotBookingCreatorOrItemOwnerException;
-import ru.practicum.shareit.booking.exception.UserNotItemOwnerInBookingException;
+import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
@@ -12,7 +9,9 @@ import ru.practicum.shareit.user.exception.UserNotFoundException;
 import java.util.List;
 
 public interface BookingService {
-    Booking addBooking(Booking booking, int ownerId, int itemId) throws ItemNotFoundException, UserNotFoundException;
+    Booking addBooking(
+            Booking booking, int ownerId, int itemId
+    ) throws ItemNotFoundException, UserNotFoundException, AddBookingByItemOwnerException;
 
     Booking getBooking(
             int bookingId, int ownerId

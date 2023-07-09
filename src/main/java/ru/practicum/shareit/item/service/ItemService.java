@@ -11,7 +11,9 @@ import java.util.List;
 public interface ItemService {
     Item addItem(Item item, int ownerId) throws UserNotFoundException;
 
-    Item updateItem(Item item, int ownerId) throws ItemNotFoundException, UserNotFoundException, UserNotOwnerOfItemException;
+    Item updateItem(
+            Item item, int ownerId
+    ) throws ItemNotFoundException, UserNotFoundException, UserNotOwnerOfItemException;
 
     ItemBookingDetails getItem(int itemId, int userId) throws ItemNotFoundException, UserNotFoundException;
 

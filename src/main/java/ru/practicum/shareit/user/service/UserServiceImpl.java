@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.exception.DuplicateEmailException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -19,7 +19,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) throws DuplicateEmailException {
+    @Transactional
+    public User createUser(User user) {
         if (user.getName() == null)
             user.setName(user.getEmail());
 
@@ -27,7 +28,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user) throws UserNotFoundException, DuplicateEmailException {
+    @Transactional
+    public User updateUser(User user) throws UserNotFoundException {
         User userForUpdate = userRepository.findById(user.getId())
                 .orElseThrow(() -> new UserNotFoundException(user.getId()));
         if (user.getEmail() != null)
@@ -39,16 +41,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUser(int userId) throws UserNotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void deleteUser(int userId) throws UserNotFoundException {
         User user = getUser(userId);
 

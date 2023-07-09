@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -36,9 +37,10 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
+    @Transactional
     public Booking addBooking(
             Booking booking, int bookerId, int itemId
-    ) throws ItemNotFoundException, UserNotFoundException {
+    ) throws ItemNotFoundException, UserNotFoundException, AddBookingByItemOwnerException {
         User booker = getUser(bookerId);
         Item item = getItem(itemId);
 
@@ -49,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
                     "Время завершения бронирования должно быть после времени начала бронирования"
             );
         if (item.getOwner().getId() == bookerId)
-            throw new IllegalArgumentException("Пользователь не может бронировать свою вещь");
+            throw new AddBookingByItemOwnerException();
 
         List<Booking> alreadyCreatedBookings = bookingRepository
                 .findAllByItemIdAndStartBetweenAndEndBetween(item.getId(), booking.getStart(), booking.getEnd());
@@ -64,6 +66,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Booking getBooking(
             int bookingId, int userId
     ) throws BookingNotFoundException, UserNotBookingCreatorOrItemOwnerException {
@@ -78,6 +81,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking approveBooking(
             int bookingId, int ownerId, boolean isApproved
     ) throws BookingNotFoundException, UserNotItemOwnerInBookingException, BadBookingStatusForApproveException {
@@ -99,6 +103,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Booking> getAllBookingsOfUserByState(
             int bookerId, BookingState bookingState
     ) throws BookingNotFoundException {
@@ -110,7 +115,9 @@ public class BookingServiceImpl implements BookingService {
                 );
                 break;
             case FUTURE:
-                allBookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                allBookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                        bookerId, LocalDateTime.now()
+                );
                 break;
             case PAST:
                 allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
@@ -118,10 +125,14 @@ public class BookingServiceImpl implements BookingService {
                 );
                 break;
             case WAITING:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId, BookingStatus.WAITING
+                );
                 break;
             case REJECTED:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId, BookingStatus.REJECTED
+                );
                 break;
             default:
                 allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
@@ -134,6 +145,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Booking> getAllBookingsOfUserItems(
             int ownerId, BookingState bookingState
     ) throws BookingNotFoundException {
@@ -152,7 +164,9 @@ public class BookingServiceImpl implements BookingService {
                 );
                 break;
             case FUTURE:
-                allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartDesc(itemIds, LocalDateTime.now());
+                allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartDesc(
+                        itemIds, LocalDateTime.now()
+                );
                 break;
             case PAST:
                 allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
@@ -160,10 +174,14 @@ public class BookingServiceImpl implements BookingService {
                 );
                 break;
             case WAITING:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(
+                        itemIds, BookingStatus.WAITING
+                );
                 break;
             case REJECTED:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(
+                        itemIds, BookingStatus.REJECTED
+                );
                 break;
             default:
                 allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds);

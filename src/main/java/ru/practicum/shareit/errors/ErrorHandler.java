@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
-import ru.practicum.shareit.user.exception.DuplicateEmailException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import javax.validation.ValidationException;
@@ -44,20 +43,11 @@ public class ErrorHandler {
     @ExceptionHandler(value = {
             UserNotFoundException.class, ItemNotFoundException.class, UserNotOwnerOfItemException.class,
             BookingNotFoundException.class, UserNotBookingCreatorOrItemOwnerException.class,
-            UserNotItemOwnerInBookingException.class
+            UserNotItemOwnerInBookingException.class, AddBookingByItemOwnerException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(RuntimeException e) {
+    public ErrorResponse handleDomainNotFoundException(RuntimeException e) {
         log.warn(e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler(value = {
-            DuplicateEmailException.class
-    })
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateEmailException(DuplicateEmailException e) {
-        log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
