@@ -22,7 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             int bookerId, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByBookerIdAndStatusIsOrderByStartDesc(int bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(int bookerId, BookingStatus bookingStatus);
 
     List<Booking> findAllByBookerIdOrderByStartDesc(int bookerId);
 
@@ -36,7 +36,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             List<Integer> itemIds, LocalDateTime start, LocalDateTime end
     );
 
-    List<Booking> findAllByItemIdInAndStatusIsOrderByStartDesc(List<Integer> itemIds, BookingStatus bookingStatus);
+    List<Booking> findAllByItemIdInAndStatusOrderByStartDesc(List<Integer> itemIds, BookingStatus bookingStatus);
 
     List<Booking> findAllByItemIdInOrderByStartDesc(List<Integer> itemIds);
 
@@ -52,18 +52,21 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE b.item.id IN (?1) " +
             "AND b.item.owner.id = ?2 " +
             "AND b.start < ?3 " +
-            "GROUP BY b.id"
+            "AND b.status NOT IN (?4) " +
+            "GROUP BY b.id " +
+            "ORDER BY b.item.id, MAX(b.start)"
     )
     List<Booking> findLastByItemIdsAndItemOwnerIdAndStartIsBefore(
-            List<Integer> itemIds, int ownerId, LocalDateTime start
+            List<Integer> itemIds, int ownerId, LocalDateTime start, List<BookingStatus> statuses
     );
 
     @Query("SELECT new ru.practicum.shareit.booking.model.Booking(b.id, MIN(b.start), b.end, b.item, b.booker, b.status) FROM Booking b " +
             "WHERE b.item.id IN (?1) " +
             "AND b.item.owner.id = ?2 " +
-            "AND b.start > ?3 " +
-            "AND b.status IN (?4) " +
-            "GROUP BY b.id"
+            "AND b.start >= ?3 " +
+            "AND b.status NOT IN (?4) " +
+            "GROUP BY b.id " +
+            "ORDER BY b.item.id, MIN(b.start)"
     )
     List<Booking> findNextByItemIdsAndItemOwnerIdAndStartIsAfterAndStatusNotIn(
             List<Integer> itemIds, int ownerId, LocalDateTime start, List<BookingStatus> statuses

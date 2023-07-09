@@ -35,5 +35,7 @@ public class BookingDTO {
 
     private UserDTO booker;
 
+    private Integer bookerId;
+
     private BookingStatus status;
 }

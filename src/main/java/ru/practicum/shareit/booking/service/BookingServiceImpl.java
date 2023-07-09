@@ -9,10 +9,10 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final ItemService itemService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository, UserService userService, ItemService itemService) {
+    public BookingServiceImpl(
+            BookingRepository bookingRepository, ItemRepository itemRepository, UserRepository userRepository
+    ) {
         this.bookingRepository = bookingRepository;
-        this.userService = userService;
-        this.itemService = itemService;
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -37,8 +39,8 @@ public class BookingServiceImpl implements BookingService {
     public Booking addBooking(
             Booking booking, int bookerId, int itemId
     ) throws ItemNotFoundException, UserNotFoundException {
-        User booker = userService.getUser(bookerId);
-        Item item = itemService.getItem(itemId, bookerId).getItem();
+        User booker = getUser(bookerId);
+        Item item = getItem(itemId);
 
         if (!item.getAvailable())
             throw new ItemNotAvailableException(itemId);
@@ -106,16 +108,21 @@ public class BookingServiceImpl implements BookingService {
                 allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
                         bookerId, LocalDateTime.now(), LocalDateTime.now()
                 );
+                break;
             case FUTURE:
                 allBookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                break;
             case PAST:
                 allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
                         bookerId, LocalDateTime.now(), LocalDateTime.now()
                 );
+                break;
             case WAITING:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                break;
             case REJECTED:
-                allBookings = bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                break;
             default:
                 allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
         }
@@ -132,8 +139,8 @@ public class BookingServiceImpl implements BookingService {
     ) throws BookingNotFoundException {
         List<Booking> allBookings;
 
-        List<Integer> itemIds = itemService.getAllItemsByOwnerId(ownerId)
-                .stream().map(i -> i.getItem().getId()).collect(Collectors.toList());
+        List<Integer> itemIds = getAllItemsByOwnerId(ownerId)
+                .stream().map(Item::getId).collect(Collectors.toList());
 
         if (itemIds.isEmpty())
             throw new BookingNotFoundException();
@@ -143,16 +150,21 @@ public class BookingServiceImpl implements BookingService {
                 allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
                         itemIds, LocalDateTime.now(), LocalDateTime.now()
                 );
+                break;
             case FUTURE:
                 allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartDesc(itemIds, LocalDateTime.now());
+                break;
             case PAST:
                 allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
                         itemIds, LocalDateTime.now(), LocalDateTime.now()
                 );
+                break;
             case WAITING:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusIsOrderByStartDesc(itemIds, BookingStatus.WAITING);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.WAITING);
+                break;
             case REJECTED:
-                allBookings = bookingRepository.findAllByItemIdInAndStatusIsOrderByStartDesc(itemIds, BookingStatus.REJECTED);
+                allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(itemIds, BookingStatus.REJECTED);
+                break;
             default:
                 allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds);
         }
@@ -161,5 +173,22 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingNotFoundException();
         else
             return allBookings;
+    }
+
+    private User getUser(int userId) throws UserNotFoundException {
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    private Item getItem(int itemId) throws ItemNotFoundException {
+        return itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException(itemId));
+    }
+
+    private List<Item> getAllItemsByOwnerId(int ownerId) throws ItemNotFoundException {
+        List<Item> items = itemRepository.findByOwnerId(ownerId);
+
+        if (items.isEmpty())
+            throw new ItemNotFoundException();
+        else
+            return items;
     }
 }

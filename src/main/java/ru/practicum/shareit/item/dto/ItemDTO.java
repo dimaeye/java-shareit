@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.request.dto.ItemRequestDTO;
 
@@ -21,6 +22,6 @@ public class ItemDTO {
     private String description;
     private Boolean available;
     private ItemRequestDTO request;
-    private Booking lastBooking;
-    private Booking nextBooking;
+    private BookingDTO lastBooking;
+    private BookingDTO nextBooking;
 }

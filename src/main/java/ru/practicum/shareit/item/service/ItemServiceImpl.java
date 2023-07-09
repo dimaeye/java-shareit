@@ -76,7 +76,9 @@ public class ItemServiceImpl implements ItemService {
         } else {
             LocalDateTime currentDate = LocalDateTime.now();
             Optional<Booking> lastBookings = bookingRepository
-                    .findLastByItemIdsAndItemOwnerIdAndStartIsBefore(List.of(item.getId()), user.getId(), currentDate)
+                    .findLastByItemIdsAndItemOwnerIdAndStartIsBefore(
+                            List.of(item.getId()), user.getId(), currentDate, List.of(BookingStatus.CANCELED, BookingStatus.REJECTED)
+                    )
                     .stream().findFirst();
 
             Optional<Booking> nextBookings = bookingRepository
@@ -101,7 +103,9 @@ public class ItemServiceImpl implements ItemService {
         List<Integer> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
 
         Map<Integer, Booking> lastBookings = bookingRepository
-                .findLastByItemIdsAndItemOwnerIdAndStartIsBefore(itemIds, owner.getId(), currentDate)
+                .findLastByItemIdsAndItemOwnerIdAndStartIsBefore(
+                        itemIds, owner.getId(), currentDate, List.of(BookingStatus.CANCELED, BookingStatus.REJECTED)
+                )
                 .stream().collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity()));
 
         Map<Integer, Booking> nextBookings = bookingRepository
