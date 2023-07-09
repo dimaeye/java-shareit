@@ -6,14 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.request.dto.ItemRequestDTO;
 
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ItemDTO {
     private int id;
     @Pattern(regexp = "^(?!\\s*$).+", message = "ItemName can not be empty")
@@ -24,4 +25,5 @@ public class ItemDTO {
     private ItemRequestDTO request;
     private BookingDTO lastBooking;
     private BookingDTO nextBooking;
+    private List<CommentDTO> comments;
 }

@@ -7,9 +7,12 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
+import ru.practicum.shareit.item.exception.UserNotBookerOfItemException;
 import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
@@ -31,13 +34,17 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
 
+    private final CommentRepository commentRepository;
+
     @Autowired
     public ItemServiceImpl(
-            ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository
+            ItemRepository itemRepository, UserRepository userRepository,
+            BookingRepository bookingRepository, CommentRepository commentRepository
     ) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -77,8 +84,10 @@ public class ItemServiceImpl implements ItemService {
         User user = getUser(userId);
         Item item = getItem(itemId);
 
+        List<Comment> comments = commentRepository.findAllByItemId(item.getId());
+
         if (user.getId() != item.getOwner().getId()) {
-            return new ItemBookingDetails(item);
+            return new ItemBookingDetails(item, comments);
         } else {
             LocalDateTime currentDate = LocalDateTime.now();
 
@@ -94,7 +103,10 @@ public class ItemServiceImpl implements ItemService {
                     )
                     .stream().findFirst();
 
-            return new ItemBookingDetails(item, lastBooking.orElse(null), nextBooking.orElse(null));
+
+            return new ItemBookingDetails(
+                    item, lastBooking.orElse(null), nextBooking.orElse(null), comments
+            );
         }
 
     }
@@ -122,6 +134,10 @@ public class ItemServiceImpl implements ItemService {
                 )
                 .stream().collect(Collectors.groupingBy(b -> b.getItem().getId()));
 
+        Map<Integer, List<Comment>> comments = commentRepository
+                .findAllByItemIdInOrderByIdAsc(itemIds)
+                .stream().collect(Collectors.groupingBy(b -> b.getItem().getId()));
+
         return items.stream()
                 .map(item ->
                         new ItemBookingDetails(
@@ -129,7 +145,8 @@ public class ItemServiceImpl implements ItemService {
                                 lastBookings.getOrDefault(item.getId(), Collections.emptyList())
                                         .stream().findFirst().orElse(null),
                                 nextBookings.getOrDefault(item.getId(), Collections.emptyList())
-                                        .stream().findFirst().orElse(null)
+                                        .stream().findFirst().orElse(null),
+                                comments.getOrDefault(item.getId(), Collections.emptyList())
                         )
                 )
                 .collect(Collectors.toList());
@@ -142,6 +159,22 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         else
             return itemRepository.findAvailableByNameOrDescription(text);
+    }
+
+    @Override
+    @Transactional
+    public Comment addComment(Comment comment, int itemId, int userId) throws UserNotBookerOfItemException {
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        Booking booking = bookingRepository.findFirstByItemIdAndBookerIdAndEndIsBefore(
+                itemId, userId, currentDate
+        ).orElseThrow(() -> new UserNotBookerOfItemException("Пользователь не брал вещь в аренду"));
+
+        comment.setItem(booking.getItem());
+        comment.setAuthor(booking.getBooker());
+        comment.setCreated(currentDate);
+
+        return commentRepository.save(comment);
     }
 
     private User getUser(int userId) throws UserNotFoundException {

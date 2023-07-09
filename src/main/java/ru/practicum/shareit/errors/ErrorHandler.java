@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
+import ru.practicum.shareit.item.exception.UserNotBookerOfItemException;
 import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
@@ -53,7 +54,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(value = {
             AlreadyReservedItemException.class, ItemNotAvailableException.class,
-            BadBookingStatusForApproveException.class
+            BadBookingStatusForApproveException.class, UserNotBookerOfItemException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDomainBadRequestException(RuntimeException e) {

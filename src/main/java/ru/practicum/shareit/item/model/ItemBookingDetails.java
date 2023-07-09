@@ -6,6 +6,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -14,4 +16,6 @@ public class ItemBookingDetails {
     private Item item;
     private Booking lastBooking;
     private Booking nextBooking;
+    @NonNull
+    private List<Comment> comments;
 }

@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
@@ -56,7 +57,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND b.start < ?3 " +
             "AND b.status NOT IN (?4) " +
             "GROUP BY b.id " +
-            "ORDER BY b.item.id, MAX(b.start)"
+            "ORDER BY b.item.id, MAX(b.start) DESC"
     )
     List<Booking> findLastByItemIdsAndItemOwnerIdAndStartIsBeforeAndStatusNotIn(
             List<Integer> itemIds, int ownerId, LocalDateTime start, List<BookingStatus> statuses
@@ -75,4 +76,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findNextByItemIdsAndItemOwnerIdAndStartIsAfterAndStatusNotIn(
             List<Integer> itemIds, int ownerId, LocalDateTime start, List<BookingStatus> statuses
     );
+
+    Optional<Booking> findFirstByItemIdAndBookerIdAndEndIsBefore(int itemId, int bookerId, LocalDateTime end);
 }

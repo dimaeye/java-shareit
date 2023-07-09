@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.annotation.AddItemConstraint;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.item.service.ItemService;
@@ -80,5 +83,16 @@ public class ItemController {
         List<Item> items = itemService.getAvailableItemsByText(text);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDTO addComment(
+            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
+            @RequestBody @Valid CommentDTO commentDTO,
+            @PathVariable Integer itemId
+    ) {
+        Comment addedComment = itemService.addComment(CommentMapper.toComment(commentDTO), itemId, ownerId);
+
+        return CommentMapper.toCommentDTO(addedComment);
     }
 }

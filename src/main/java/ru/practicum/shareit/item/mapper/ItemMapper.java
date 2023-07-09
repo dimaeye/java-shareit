@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 
+import java.util.stream.Collectors;
+
 @UtilityClass
 public class ItemMapper {
     public static ItemDTO toItemDTO(Item item) {
@@ -38,6 +40,12 @@ public class ItemMapper {
             nextBooking.setBooker(null);
             itemDTO.setNextBooking(nextBooking);
         }
+
+        if (itemBookingDetails.getComments() != null)
+            itemDTO.setComments(
+                    itemBookingDetails.getComments()
+                            .stream().map(CommentMapper::toCommentDTO).collect(Collectors.toList())
+            );
 
         return itemDTO;
     }
