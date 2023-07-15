@@ -19,7 +19,8 @@ public class ItemDTO {
     @Pattern(regexp = "^(?!\\s*$).+", message = "UserDescription can not be empty")
     private String description;
     private Boolean available;
-    private ItemRequestDTO request;
+//    private ItemRequestDTO request;
+    private Integer requestId;
     private BookingDTO lastBooking;
     private BookingDTO nextBooking;
     private List<CommentDTO> comments;

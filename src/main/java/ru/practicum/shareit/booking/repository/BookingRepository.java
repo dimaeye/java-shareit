@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,32 +15,38 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-            int bookerId, LocalDateTime start, LocalDateTime end
+            int bookerId, LocalDateTime start, LocalDateTime end, Pageable pageable
     );
 
-    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId, LocalDateTime start);
+    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(int bookerId, LocalDateTime start, Pageable pageable);
 
     List<Booking> findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
-            int bookerId, LocalDateTime start, LocalDateTime end
+            int bookerId, LocalDateTime start, LocalDateTime end, Pageable pageable
     );
 
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(int bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(
+            int bookerId, BookingStatus bookingStatus, Pageable pageable
+    );
 
-    List<Booking> findAllByBookerIdOrderByStartDesc(int bookerId);
+    List<Booking> findAllByBookerIdOrderByStartDesc(int bookerId, Pageable pageable);
 
     List<Booking> findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
-            List<Integer> itemIds, LocalDateTime start, LocalDateTime end
+            List<Integer> itemIds, LocalDateTime start, LocalDateTime end, Pageable pageable
     );
 
-    List<Booking> findAllByItemIdInAndStartAfterOrderByStartDesc(List<Integer> itemIds, LocalDateTime start);
+    List<Booking> findAllByItemIdInAndStartAfterOrderByStartDesc(
+            List<Integer> itemIds, LocalDateTime start, Pageable pageable
+    );
 
     List<Booking> findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
-            List<Integer> itemIds, LocalDateTime start, LocalDateTime end
+            List<Integer> itemIds, LocalDateTime start, LocalDateTime end, Pageable pageable
     );
 
-    List<Booking> findAllByItemIdInAndStatusOrderByStartDesc(List<Integer> itemIds, BookingStatus bookingStatus);
+    List<Booking> findAllByItemIdInAndStatusOrderByStartDesc(
+            List<Integer> itemIds, BookingStatus bookingStatus, Pageable pageable
+    );
 
-    List<Booking> findAllByItemIdInOrderByStartDesc(List<Integer> itemIds);
+    List<Booking> findAllByItemIdInOrderByStartDesc(List<Integer> itemIds, Pageable pageable);
 
     @Query("FROM Booking b " +
             "WHERE b.item.id = ?1 " +

@@ -6,12 +6,13 @@ import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
+import ru.practicum.shareit.request.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import java.util.List;
 
 public interface ItemService {
-    Item addItem(Item item, int ownerId) throws UserNotFoundException;
+    Item addItem(Item item, int ownerId) throws UserNotFoundException, ItemRequestNotFoundException;
 
     Item updateItem(
             Item item, int ownerId
@@ -19,9 +20,9 @@ public interface ItemService {
 
     ItemBookingDetails getItem(int itemId, int userId) throws ItemNotFoundException, UserNotFoundException;
 
-    List<ItemBookingDetails> getAllItemsByOwnerId(int ownerId) throws UserNotFoundException;
+    List<ItemBookingDetails> getAllItemsByOwnerId(int ownerId, int from, int size) throws UserNotFoundException;
 
-    List<Item> getAvailableItemsByText(String text);
+    List<Item> getAvailableItemsByText(String text, int from, int size);
 
     Comment addComment(Comment comment, int itemId, int userId) throws UserNotBookerOfItemException;
 }

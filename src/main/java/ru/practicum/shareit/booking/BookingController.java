@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.service.BookingService;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,12 +68,13 @@ public class BookingController {
     @GetMapping
     public List<BookingDTO> getAllBookingsOfUserByState(
             @RequestHeader(OWNER_ID_HEADER)
-            @Positive
-            Integer ownerId,
-            @RequestParam(value = "state", required = false, defaultValue = "ALL")
-            String state
+            @Positive Integer ownerId,
+            @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
     ) {
-        List<Booking> allBookings = bookingService.getAllBookingsOfUserByState(ownerId, getBookingState(state));
+        List<Booking> allBookings = bookingService
+                .getAllBookingsOfUserByState(ownerId, getBookingState(state), from, size);
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
     }
@@ -80,12 +82,13 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDTO> getAllBookingsOfUserItems(
             @RequestHeader(OWNER_ID_HEADER)
-            @Positive
-            Integer ownerId,
-            @RequestParam(value = "state", required = false, defaultValue = "ALL")
-            String state
+            @Positive Integer ownerId,
+            @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
     ) {
-        List<Booking> allBookings = bookingService.getAllBookingsOfUserItems(ownerId, getBookingState(state));
+        List<Booking> allBookings = bookingService
+                .getAllBookingsOfUserItems(ownerId, getBookingState(state), from, size);
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
     }

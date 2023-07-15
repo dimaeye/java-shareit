@@ -21,7 +21,7 @@ public interface BookingService {
             int bookingId, int ownerId, boolean isApproved
     ) throws BookingNotFoundException, UserNotItemOwnerInBookingException, BadBookingStatusForApproveException;
 
-    List<Booking> getAllBookingsOfUserByState(int ownerId, BookingState bookingState) throws BookingNotFoundException;
+    List<Booking> getAllBookingsOfUserByState(int ownerId, BookingState bookingState, int from, int size) throws BookingNotFoundException;
 
-    List<Booking> getAllBookingsOfUserItems(int ownerId, BookingState bookingState) throws BookingNotFoundException;
+    List<Booking> getAllBookingsOfUserItems(int ownerId, BookingState bookingState, int from, int size) throws BookingNotFoundException;
 }

@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,15 +73,23 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDTO> getAllItemsByOwnerId(@RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId) {
-        List<ItemBookingDetails> items = itemService.getAllItemsByOwnerId(ownerId);
+    public List<ItemDTO> getAllItemsByOwnerId(
+            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+    ) {
+        List<ItemBookingDetails> items = itemService.getAllItemsByOwnerId(ownerId, from, size);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/search")
-    public List<ItemDTO> getAvailableItemsByName(@RequestParam String text) {
-        List<Item> items = itemService.getAvailableItemsByText(text);
+    public List<ItemDTO> getAvailableItemsByName(
+            @RequestParam String text,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+    ) {
+        List<Item> items = itemService.getAvailableItemsByText(text, from, size);
 
         return items.stream().map(ItemMapper::toItemDTO).collect(Collectors.toList());
     }

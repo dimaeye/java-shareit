@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -10,12 +11,12 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    List<Item> findByOwnerId(int ownerId) throws UserNotFoundException;
+    List<Item> findByOwnerId(int ownerId, Pageable pageable) throws UserNotFoundException;
 
     @Query("FROM Item it " +
             "WHERE LOWER (it.name) LIKE LOWER (concat('%',:text,'%')) " +
             "OR LOWER (it.description) LIKE LOWER (concat('%',:text,'%')) " +
             "AND it.available = TRUE"
     )
-    List<Item> findAvailableByNameOrDescription(String text);
+    List<Item> findAvailableByNameOrDescription(String text, Pageable pageable);
 }

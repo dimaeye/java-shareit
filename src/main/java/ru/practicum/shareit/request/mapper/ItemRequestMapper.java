@@ -1,9 +1,12 @@
 package ru.practicum.shareit.request.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.request.dto.ItemRequestDTO;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.mapper.UserMapper;
+
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemRequestMapper {
@@ -11,8 +14,20 @@ public class ItemRequestMapper {
         return ItemRequestDTO.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
-                .requestor(UserMapper.toUserDTO(itemRequest.getRequestor()))
                 .created(itemRequest.getCreated())
+                .items(
+                        itemRequest.getItems() != null ?
+                                itemRequest.getItems().stream()
+                                        .map(item ->
+                                                ItemDTO.builder()
+                                                        .id(item.getId())
+                                                        .name(item.getName())
+                                                        .description(item.getDescription())
+                                                        .requestId(item.getRequestId())
+                                                        .available(item.getAvailable())
+                                                        .build()
+                                        ).collect(Collectors.toList()) : Collections.emptyList()
+                )
                 .build();
     }
 
@@ -20,7 +35,6 @@ public class ItemRequestMapper {
         return ItemRequest.builder()
                 .id(itemRequestDTO.getId())
                 .description(itemRequestDTO.getDescription())
-                .requestor(UserMapper.toUser(itemRequestDTO.getRequestor()))
                 .created(itemRequestDTO.getCreated())
                 .build();
     }
