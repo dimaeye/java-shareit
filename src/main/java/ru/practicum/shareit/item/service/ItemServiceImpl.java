@@ -64,8 +64,7 @@ public class ItemServiceImpl implements ItemService {
             Item item, int ownerId
     ) throws ItemNotFoundException, UserNotFoundException, UserNotOwnerOfItemException {
         User owner = getUser(ownerId);
-        Item itemForUpdate = itemRepository
-                .findById(item.getId()).orElseThrow(() -> new ItemNotFoundException(item.getId()));
+        Item itemForUpdate = getItem(item.getId());
 
         if (!itemForUpdate.getOwner().equals(owner))
             throw new UserNotOwnerOfItemException("Предмет " + item + "не принадлежит пользователю " + owner);
