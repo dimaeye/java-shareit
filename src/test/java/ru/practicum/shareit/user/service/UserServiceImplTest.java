@@ -18,16 +18,16 @@ import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
-    private final UserRepository userRepository = mock(UserRepository.class);
+    private final UserRepository mockUserRepository = mock(UserRepository.class);
 
-    private final UserService userService = new UserServiceImpl(userRepository);
+    private final UserService userService = new UserServiceImpl(mockUserRepository);
 
     private final EasyRandom generator = new EasyRandom();
 
     @Test
     void createUser() {
         User user = generator.nextObject(User.class);
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(mockUserRepository.save(any(User.class))).thenReturn(user);
 
         User createdUser = userService.createUser(user);
 
@@ -37,8 +37,8 @@ class UserServiceImplTest {
     @Test
     void updateUser() {
         User userForUpdate = generator.nextObject(User.class);
-        when(userRepository.findById(anyInt())).thenReturn(Optional.of(userForUpdate));
-        when(userRepository.save(any(User.class))).thenAnswer(i ->
+        when(mockUserRepository.findById(anyInt())).thenReturn(Optional.of(userForUpdate));
+        when(mockUserRepository.save(any(User.class))).thenAnswer(i ->
                 Arrays.stream(i.getArguments()).findFirst().get()
         );
 
@@ -49,7 +49,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenTryToUpdateUnknownUser() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(mockUserRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         User user = generator.nextObject(User.class);
 
@@ -62,7 +62,7 @@ class UserServiceImplTest {
     @Test
     void getUser() {
         User user = generator.nextObject(User.class);
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(mockUserRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         User foundUser = userService.getUser(user.getId());
 
@@ -71,7 +71,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenTryToGetUnknownUser() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(mockUserRepository.findById(anyInt())).thenReturn(Optional.empty());
         int userId = generator.nextInt();
 
         UserNotFoundException userNotFoundException =
@@ -83,7 +83,7 @@ class UserServiceImplTest {
     @Test
     void getAllUsers() {
         List<User> users = generator.objects(User.class, 10).collect(Collectors.toList());
-        when(userRepository.findAll()).thenReturn(users);
+        when(mockUserRepository.findAll()).thenReturn(users);
 
         List<User> foundUsers = userService.getAllUsers();
 
@@ -93,18 +93,18 @@ class UserServiceImplTest {
     @Test
     void deleteUser() {
         User user = generator.nextObject(User.class);
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        doNothing().when(userRepository).delete(any(User.class));
+        when(mockUserRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        doNothing().when(mockUserRepository).delete(any(User.class));
 
         assertAll(
                 () -> assertDoesNotThrow(() -> userService.deleteUser(user.getId())),
-                () -> verify(userRepository, times(1)).delete(any(User.class))
+                () -> verify(mockUserRepository, times(1)).delete(any(User.class))
         );
     }
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenTryToDeleteUnknownUser() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(mockUserRepository.findById(anyInt())).thenReturn(Optional.empty());
         int userId = generator.nextInt();
 
         UserNotFoundException userNotFoundException =

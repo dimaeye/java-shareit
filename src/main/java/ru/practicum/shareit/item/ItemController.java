@@ -100,7 +100,9 @@ public class ItemController {
             @RequestBody @Valid CommentDTO commentDTO,
             @PathVariable Integer itemId
     ) {
+        log.info("Запрос на добавление комментария к предмету - " + itemId + " пользователя " + ownerId);
         Comment addedComment = itemService.addComment(CommentMapper.toComment(commentDTO), itemId, ownerId);
+        log.info("Комментарий добавлен успешно");
 
         return CommentMapper.toCommentDTO(addedComment);
     }
