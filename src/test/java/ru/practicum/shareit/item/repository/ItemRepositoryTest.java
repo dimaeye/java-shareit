@@ -20,7 +20,7 @@ class ItemRepositoryTest {
     private ItemRepository itemRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private TestEntityManager testEntityManager;
 
     private final EasyRandom generator = new EasyRandom();
 
@@ -28,7 +28,7 @@ class ItemRepositoryTest {
     void findAvailableByNameOrDescription() {
         User user = generator.nextObject(User.class);
         user.setId(0);
-        User savedUser = entityManager.persist(user);
+        User savedUser = testEntityManager.persist(user);
 
         Item item = generator.nextObject(Item.class);
         item.setOwner(savedUser);

@@ -40,7 +40,7 @@ class BookingRepositoryTest {
 
         booker = generator.nextObject(User.class);
         booker.setId(0);
-        booker = testEntityManager.persist(owner);
+        booker = testEntityManager.persist(booker);
 
         item = Item.builder()
                 .name(generator.nextObject(String.class))
@@ -60,6 +60,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusHours(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
@@ -80,6 +81,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().plusMinutes(1), LocalDateTime.now().plusHours(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByBookerIdAndStartAfterOrderByStartDesc(
@@ -101,6 +103,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().minusDays(1), LocalDateTime.now().minusMinutes(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
@@ -122,6 +125,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().minusDays(1), LocalDateTime.now().plusMinutes(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
@@ -143,6 +147,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().plusMinutes(1), LocalDateTime.now().plusHours(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByItemIdInAndStartAfterOrderByStartDesc(
@@ -164,6 +169,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().minusHours(1), LocalDateTime.now().minusMinutes(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
@@ -188,6 +194,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findAllByItemIdAndStartBetweenAndEndBetween(
@@ -211,6 +218,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusDays(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findLastByItemIdsAndItemOwnerIdAndStartIsBeforeAndStatusNotIn(
@@ -235,6 +243,7 @@ class BookingRepositoryTest {
         Booking savedBooking = createBooking(
                 LocalDateTime.now().plusMinutes(1), LocalDateTime.now().plusDays(1), BookingStatus.WAITING
         );
+        testEntityManager.flush();
 
         List<Booking> foundBookings = bookingRepository
                 .findNextByItemIdsAndItemOwnerIdAndStartIsAfterAndStatusNotIn(
