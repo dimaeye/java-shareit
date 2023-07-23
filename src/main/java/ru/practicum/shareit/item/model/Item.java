@@ -28,4 +28,6 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "request_id")
     private ItemRequest request;
+    @Column(name = "request_id", insertable = false, updatable = false)
+    private Integer requestId;
 }

@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -14,6 +16,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.exception.ItemRequestNotFoundException;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -26,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private static final List<BookingStatus> CANCELED_BOOKING_STATUSES =
             List.of(BookingStatus.CANCELED, BookingStatus.REJECTED);
@@ -33,26 +39,22 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
-
     private final CommentRepository commentRepository;
-
-    @Autowired
-    public ItemServiceImpl(
-            ItemRepository itemRepository, UserRepository userRepository,
-            BookingRepository bookingRepository, CommentRepository commentRepository
-    ) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-        this.bookingRepository = bookingRepository;
-        this.commentRepository = commentRepository;
-    }
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
-    public Item addItem(Item item, int ownerId) throws UserNotFoundException {
+    public Item addItem(Item item, int ownerId) throws UserNotFoundException, ItemRequestNotFoundException {
         User owner = getUser(ownerId);
-
         item.setOwner(owner);
+
+        if (item.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository
+                    .findById(item.getRequestId())
+                    .orElseThrow(() -> new ItemRequestNotFoundException(item.getRequestId()));
+            item.setRequest(itemRequest);
+        }
+
         return itemRepository.save(item);
     }
 
@@ -62,8 +64,7 @@ public class ItemServiceImpl implements ItemService {
             Item item, int ownerId
     ) throws ItemNotFoundException, UserNotFoundException, UserNotOwnerOfItemException {
         User owner = getUser(ownerId);
-        Item itemForUpdate = itemRepository
-                .findById(item.getId()).orElseThrow(() -> new ItemNotFoundException(item.getId()));
+        Item itemForUpdate = getItem(item.getId());
 
         if (!itemForUpdate.getOwner().equals(owner))
             throw new UserNotOwnerOfItemException("Предмет " + item + "не принадлежит пользователю " + owner);
@@ -113,9 +114,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemBookingDetails> getAllItemsByOwnerId(int ownerId) throws UserNotFoundException {
+    public List<ItemBookingDetails> getAllItemsByOwnerId(int ownerId, int from, int size) throws UserNotFoundException {
+        if (size <= 0)
+            throw new IllegalArgumentException("Размер не должен быть меньше единицы.");
+
+        Pageable pageable = PageRequest.of(from / size, size);
+
         User owner = getUser(ownerId);
-        List<Item> items = itemRepository.findByOwnerId(owner.getId());
+        List<Item> items = itemRepository.findByOwnerId(owner.getId(), pageable);
         if (items.isEmpty())
             throw new ItemNotFoundException();
 
@@ -154,11 +160,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Item> getAvailableItemsByText(String text) {
+    public List<Item> getAvailableItemsByText(String text, int from, int size) {
+        if (size <= 0)
+            throw new IllegalArgumentException("Размер не должен быть меньше единицы.");
+
         if (text == null || text.isBlank())
             return Collections.emptyList();
-        else
-            return itemRepository.findAvailableByNameOrDescription(text);
+        else {
+            Pageable pageable = PageRequest.of(from / size, size);
+            return itemRepository.findAvailableByNameOrDescription(text, pageable);
+        }
     }
 
     @Override

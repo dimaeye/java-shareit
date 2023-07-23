@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.exception.*;
@@ -105,37 +107,41 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<Booking> getAllBookingsOfUserByState(
-            int bookerId, BookingState bookingState
+            int bookerId, BookingState bookingState, int from, int size
     ) throws BookingNotFoundException {
+        if (size <= 0)
+            throw new IllegalArgumentException("Размер не должен быть меньше единицы.");
+
         List<Booking> allBookings;
+        Pageable pageable = PageRequest.of(from / size, size);
         switch (bookingState) {
             case CURRENT:
                 allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        bookerId, LocalDateTime.now(), LocalDateTime.now()
+                        bookerId, LocalDateTime.now(), LocalDateTime.now(), pageable
                 );
                 break;
             case FUTURE:
                 allBookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
-                        bookerId, LocalDateTime.now()
+                        bookerId, LocalDateTime.now(), pageable
                 );
                 break;
             case PAST:
                 allBookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndBeforeOrderByStartDesc(
-                        bookerId, LocalDateTime.now(), LocalDateTime.now()
+                        bookerId, LocalDateTime.now(), LocalDateTime.now(), pageable
                 );
                 break;
             case WAITING:
                 allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
-                        bookerId, BookingStatus.WAITING
+                        bookerId, BookingStatus.WAITING, pageable
                 );
                 break;
             case REJECTED:
                 allBookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
-                        bookerId, BookingStatus.REJECTED
+                        bookerId, BookingStatus.REJECTED, pageable
                 );
                 break;
             default:
-                allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
+                allBookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
         }
 
         if (allBookings.isEmpty())
@@ -147,9 +153,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<Booking> getAllBookingsOfUserItems(
-            int ownerId, BookingState bookingState
+            int ownerId, BookingState bookingState, int from, int size
     ) throws BookingNotFoundException {
+        if (size <= 0)
+            throw new IllegalArgumentException("Размер не должен быть меньше единицы.");
+
         List<Booking> allBookings;
+        Pageable pageable = PageRequest.of(from / size, size);
 
         List<Integer> itemIds = getAllItemsByOwnerId(ownerId)
                 .stream().map(Item::getId).collect(Collectors.toList());
@@ -160,31 +170,31 @@ public class BookingServiceImpl implements BookingService {
         switch (bookingState) {
             case CURRENT:
                 allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndAfterOrderByStartDesc(
-                        itemIds, LocalDateTime.now(), LocalDateTime.now()
+                        itemIds, LocalDateTime.now(), LocalDateTime.now(), pageable
                 );
                 break;
             case FUTURE:
                 allBookings = bookingRepository.findAllByItemIdInAndStartAfterOrderByStartDesc(
-                        itemIds, LocalDateTime.now()
+                        itemIds, LocalDateTime.now(), pageable
                 );
                 break;
             case PAST:
                 allBookings = bookingRepository.findAllByItemIdInAndStartBeforeAndEndBeforeOrderByStartDesc(
-                        itemIds, LocalDateTime.now(), LocalDateTime.now()
+                        itemIds, LocalDateTime.now(), LocalDateTime.now(), pageable
                 );
                 break;
             case WAITING:
                 allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(
-                        itemIds, BookingStatus.WAITING
+                        itemIds, BookingStatus.WAITING, pageable
                 );
                 break;
             case REJECTED:
                 allBookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDesc(
-                        itemIds, BookingStatus.REJECTED
+                        itemIds, BookingStatus.REJECTED, pageable
                 );
                 break;
             default:
-                allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds);
+                allBookings = bookingRepository.findAllByItemIdInOrderByStartDesc(itemIds, pageable);
         }
 
         if (allBookings.isEmpty())
@@ -202,7 +212,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<Item> getAllItemsByOwnerId(int ownerId) throws ItemNotFoundException {
-        List<Item> items = itemRepository.findByOwnerId(ownerId);
+        List<Item> items = itemRepository.findByOwnerId(ownerId, Pageable.unpaged());
 
         if (items.isEmpty())
             throw new ItemNotFoundException();

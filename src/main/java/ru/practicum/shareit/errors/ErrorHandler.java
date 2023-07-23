@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.exception.UserNotBookerOfItemException;
 import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
+import ru.practicum.shareit.request.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import javax.validation.ValidationException;
@@ -44,7 +45,8 @@ public class ErrorHandler {
     @ExceptionHandler(value = {
             UserNotFoundException.class, ItemNotFoundException.class, UserNotOwnerOfItemException.class,
             BookingNotFoundException.class, UserNotBookingCreatorOrItemOwnerException.class,
-            UserNotItemOwnerInBookingException.class, AddBookingByItemOwnerException.class
+            UserNotItemOwnerInBookingException.class, AddBookingByItemOwnerException.class,
+            ItemRequestNotFoundException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleDomainNotFoundException(RuntimeException e) {
