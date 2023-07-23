@@ -83,23 +83,6 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBadRequestAfterTryToAddBookingWithPastEndTime() throws Exception {
-        BookingDTO requestBookingDTO = BookingDTO.builder()
-                .start(booking.getStart())
-                .end(LocalDateTime.now().minusDays(1))
-                .itemId(booking.getItem().getId())
-                .bookerId(booking.getBooker().getId())
-                .build();
-
-        mockMvc.perform(post("/bookings")
-                        .header(AuthConstant.OWNER_ID_HEADER, 1)
-                        .content(objectMapper.writeValueAsString(requestBookingDTO))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void approveBooking() throws Exception {
         booking.setStatus(BookingStatus.APPROVED);
 

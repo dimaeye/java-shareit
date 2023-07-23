@@ -15,14 +15,13 @@ import ru.practicum.shareit.item.exception.UserNotOwnerOfItemException;
 import ru.practicum.shareit.request.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    @ExceptionHandler(value = {ValidationException.class, IllegalArgumentException.class})
+    @ExceptionHandler(value = {IllegalArgumentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationAndIllegalArgExceptions(RuntimeException e) {
         return new ErrorResponse(e.getMessage());

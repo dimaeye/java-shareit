@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.item.dto.ItemDTO;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ItemRequestDTO {
     private int id;
-    @NotBlank
     private String description;
     private Integer requestorId;
     private LocalDateTime created;

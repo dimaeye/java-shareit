@@ -17,7 +17,9 @@ public class BookingRequestDTO {
 	@NotNull
 	private Integer itemId;
 	@FutureOrPresent
+	@NotNull
 	private LocalDateTime start;
 	@Future
+	@NotNull
 	private LocalDateTime end;
 }

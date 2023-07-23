@@ -9,9 +9,6 @@ import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +29,8 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDTO addRequest(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer requestorId,
-            @RequestBody @Valid ItemRequestDTO itemRequestDTO
+            @RequestHeader(OWNER_ID_HEADER) Integer requestorId,
+            @RequestBody ItemRequestDTO itemRequestDTO
     ) {
         log.info("Запрос на добавление вещи: " + itemRequestDTO + " от пользователя: " + requestorId);
         ItemRequest addedItemRequest = itemRequestService.addRequest(
@@ -46,14 +43,14 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ItemRequestDTO getRequest(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer requestorId, @PathVariable Integer requestId
+            @RequestHeader(OWNER_ID_HEADER) Integer requestorId, @PathVariable Integer requestId
     ) {
         return ItemRequestMapper.toItemRequestDTO(itemRequestService.getRequest(requestId, requestorId));
     }
 
     @GetMapping
     public List<ItemRequestDTO> getAllRequestsByRequestorId(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer requestorId
+            @RequestHeader(OWNER_ID_HEADER) Integer requestorId
     ) {
         return itemRequestService.getAllRequestsByRequestorId(requestorId)
                 .stream().map(ItemRequestMapper::toItemRequestDTO)
@@ -62,9 +59,9 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDTO> getAllRequests(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer requestorId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+            @RequestHeader(OWNER_ID_HEADER) Integer requestorId,
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size
     ) {
         return itemRequestService.getAllRequests(requestorId, from, size)
                 .stream().map(ItemRequestMapper::toItemRequestDTO)

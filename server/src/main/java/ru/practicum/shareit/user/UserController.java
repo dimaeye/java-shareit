@@ -4,14 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.annotation.CreateUserConstraint;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO createUser(@Valid @RequestBody @CreateUserConstraint UserDTO userDTO) {
+    public UserDTO createUser(@RequestBody UserDTO userDTO) {
         log.info("Запрос на создание пользователя - " + userDTO);
         User createdUser = userService.createUser(UserMapper.toUser(userDTO));
         log.info("Пользователь создан успешно");
@@ -37,7 +34,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable @Positive Integer userId) {
+    public UserDTO updateUser(@RequestBody UserDTO userDTO, @PathVariable Integer userId) {
         userDTO.setId(userId);
 
         log.info("Запрос на обновление пользователя - " + userDTO);
@@ -48,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDTO getUser(@PathVariable @Positive Integer userId) {
+    public UserDTO getUser(@PathVariable Integer userId) {
         User user = userService.getUser(userId);
 
         return UserMapper.toUserDTO(user);
@@ -62,7 +59,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable @Positive Integer userId) {
+    public void deleteUser(@PathVariable Integer userId) {
         log.info("Запрос на удаление пользователя id=" + userId);
         userService.deleteUser(userId);
         log.info("Пользователь удален успешно");

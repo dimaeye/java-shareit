@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.annotation.AddItemConstraint;
 import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -14,9 +13,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemBookingDetails;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +33,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDTO addItem(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
-            @RequestBody @Valid @AddItemConstraint ItemDTO itemDTO
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
+            @RequestBody ItemDTO itemDTO
     ) {
         log.info("Запрос на добавление предмета - " + itemDTO + " владельца " + ownerId);
         Item addedItem = itemService.addItem(ItemMapper.toItem(itemDTO), ownerId);
@@ -49,8 +45,8 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDTO updateItem(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
-            @RequestBody @Valid ItemDTO itemDTO,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
+            @RequestBody ItemDTO itemDTO,
             @PathVariable("itemId") Integer itemId
     ) {
         itemDTO.setId(itemId);
@@ -64,7 +60,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDTO getItemById(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer userId,
+            @RequestHeader(OWNER_ID_HEADER) Integer userId,
             @PathVariable("itemId") Integer itemId
     ) {
         ItemBookingDetails itemBookingDetails = itemService.getItem(itemId, userId);
@@ -74,9 +70,9 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDTO> getAllItemsByOwnerId(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size
     ) {
         List<ItemBookingDetails> items = itemService.getAllItemsByOwnerId(ownerId, from, size);
 
@@ -86,8 +82,8 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDTO> getAvailableItemsByName(
             @RequestParam String text,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size
     ) {
         List<Item> items = itemService.getAvailableItemsByText(text, from, size);
 
@@ -96,8 +92,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDTO addComment(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
-            @RequestBody @Valid CommentDTO commentDTO,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
+            @RequestBody CommentDTO commentDTO,
             @PathVariable Integer itemId
     ) {
         log.info("Запрос на добавление комментария к предмету - " + itemId + " пользователя " + ownerId);

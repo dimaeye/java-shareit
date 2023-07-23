@@ -10,10 +10,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +30,8 @@ public class BookingController {
 
     @PostMapping
     public BookingDTO addBooking(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
-            @RequestBody @Valid BookingDTO bookingDTO
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
+            @RequestBody BookingDTO bookingDTO
     ) {
         Booking addedBooking = bookingService.addBooking(
                 BookingMapper.toBooking(bookingDTO), ownerId, bookingDTO.getItemId()
@@ -46,7 +42,7 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDTO approveBooking(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
             @PathVariable("bookingId") Integer bookingId,
             @RequestParam("approved") Boolean isApproved
     ) {
@@ -57,7 +53,7 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingDTO getBooking(
-            @RequestHeader(OWNER_ID_HEADER) @Positive Integer ownerId,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
             @PathVariable("bookingId") Integer bookingId
     ) {
         Booking booking = bookingService.getBooking(bookingId, ownerId);
@@ -67,43 +63,28 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDTO> getAllBookingsOfUserByState(
-            @RequestHeader(OWNER_ID_HEADER)
-            @Positive Integer ownerId,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
             @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size
     ) {
         List<Booking> allBookings = bookingService
-                .getAllBookingsOfUserByState(ownerId, getBookingState(state), from, size);
+                .getAllBookingsOfUserByState(ownerId, BookingState.valueOf(state), from, size);
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
     public List<BookingDTO> getAllBookingsOfUserItems(
-            @RequestHeader(OWNER_ID_HEADER)
-            @Positive Integer ownerId,
+            @RequestHeader(OWNER_ID_HEADER) Integer ownerId,
             @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "20") @PositiveOrZero Integer size
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size
     ) {
         List<Booking> allBookings = bookingService
-                .getAllBookingsOfUserItems(ownerId, getBookingState(state), from, size);
+                .getAllBookingsOfUserItems(ownerId, BookingState.valueOf(state), from, size);
 
         return allBookings.stream().map(BookingMapper::toBookingDTO).collect(Collectors.toList());
-    }
-
-
-    private BookingState getBookingState(String state) throws ValidationException {
-        BookingState bookingState;
-        try {
-            bookingState = BookingState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
-            throw new ValidationException("Unknown state: " + state);
-        }
-
-        return bookingState;
     }
 
 }

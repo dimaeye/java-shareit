@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 
-import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
@@ -13,9 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemDTO {
     private int id;
-    @Pattern(regexp = "^(?!\\s*$).+", message = "ItemName can not be empty")
     private String name;
-    @Pattern(regexp = "^(?!\\s*$).+", message = "UserDescription can not be empty")
     private String description;
     private Boolean available;
     private Integer requestId;
