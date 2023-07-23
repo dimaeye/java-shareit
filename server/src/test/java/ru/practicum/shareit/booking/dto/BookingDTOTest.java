@@ -23,7 +23,7 @@ class BookingDTOTest {
     private JacksonTester<BookingDTO> json;
 
     private final EasyRandom generator = new EasyRandom();
-    private final String dateTimeFormat = "yyyy-MM-dd'T'hh:mm:ss.SSSSSS";
+    private final String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
 
     @Test
     void testBookingDTO() throws IOException {
